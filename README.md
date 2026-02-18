@@ -1,6 +1,7 @@
 # Swarm Skill
 
 `swarm` is a Codex/Claude skill for team-based parallel execution.
+It is based on Anthropic Agent Teams documentation: https://code.claude.com/docs/en/agent-teams
 
 ## What it does
 
