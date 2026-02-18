@@ -39,6 +39,37 @@ By default, skill files are installed to `${CODEX_HOME:-$HOME/.codex}/skills/swa
 
 Place this folder in your skills directory and ensure the agent runtime can load `SKILL.md`.
 
+## Usage
+
+Trigger the skill in chat when you want parallel execution with a team:
+
+```text
+/swarm <task>
+```
+
+Model-specific launch:
+
+```text
+/swarm haiku <task>
+/swarm sonnet <task>
+/swarm opus <task>
+```
+
+Common examples:
+
+```text
+/swarm 1. Add auth middleware 2. Add tests 3. Update docs 4. Wire CI
+/swarm plan.md
+/swarm parallelize checkout flow refactor
+```
+
+Behavior:
+
+1. Parses your request into tasks.
+2. Splits work into exactly 4 scoped agents.
+3. Runs plan approval before implementation.
+4. Tracks progress and returns a final summary.
+
 ## Development
 
 1. Edit `SKILL.md`.
