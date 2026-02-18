@@ -3,6 +3,8 @@
 `swarm` is a Codex/Claude skill for team-based parallel execution.
 It is based on Anthropic Agent Teams documentation: https://code.claude.com/docs/en/agent-teams
 
+Русская версия: [README.ru.md](README.ru.md)
+
 ## What it does
 
 - Triggers when users ask to run work with a team or in parallel.
@@ -13,7 +15,8 @@ It is based on Anthropic Agent Teams documentation: https://code.claude.com/docs
 ## Repository structure
 
 - `SKILL.md` - full skill instructions and workflow.
-- `README.md` - project overview.
+- `README.md` - project overview (English).
+- `README.ru.md` - обзор проекта (Русский).
 - `LICENSE` - MIT license.
 - `install.sh` - one-command shell installer.
 - `scripts/install.js` - Node.js installer (for `npx`).
