@@ -1,0 +1,16 @@
+{
+  "name": "@teafey/swarm-skill",
+  "version": "0.1.0",
+  "description": "Installer for the swarm Codex skill",
+  "license": "MIT",
+  "bin": {
+    "swarm-skill-install": "scripts/install.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teafey/swarm.skill.git"
+  }
+}
