@@ -1,7 +1,7 @@
 # Swarm Skill
 
-`swarm` is a Codex/Claude skill for team-based parallel execution.
-It is based on Anthropic Agent Teams documentation: https://code.claude.com/docs/en/agent-teams
+`swarm` is a skill for team-based parallel execution across AI coding agents.
+Based on Anthropic Agent Teams documentation: https://code.claude.com/docs/en/agent-teams
 
 Русская версия: [README.ru.md](README.ru.md)
 
@@ -18,29 +18,78 @@ It is based on Anthropic Agent Teams documentation: https://code.claude.com/docs
 - `README.md` - project overview (English).
 - `README.ru.md` - обзор проекта (Русский).
 - `LICENSE` - MIT license.
-- `install.sh` - one-command shell installer.
+- `install.sh` - shell installer with interactive agent picker.
 - `scripts/install.js` - Node.js installer (for `npx`).
 - `package.json` - npm metadata and CLI entrypoint.
 
-## Quick install
+## Install
 
-Shell installer:
+### Shell (curl)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/teafey/swarm.skill/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/teafey/swarm.skill/main/install.sh | bash
 ```
 
-NPX installer (from GitHub):
+### NPX (from GitHub)
 
 ```sh
 npx --yes -p github:teafey/swarm.skill swarm-skill-install
 ```
 
-By default, skill files are installed to `${CODEX_HOME:-$HOME/.codex}/skills/swarm`.
+Both installers auto-detect agent directories and present an interactive menu:
 
-## Local usage
+```
+  Swarm Skill Installer
 
-Place this folder in your skills directory and ensure the agent runtime can load `SKILL.md`.
+  SPACE toggle  ↑↓ move  ENTER confirm  q quit
+
+  ❯ [✔] Claude Code  ~/.claude/skills/swarm
+    [✔] Codex         ~/.codex/skills/swarm
+```
+
+Toggle targets with **SPACE**, navigate with **arrow keys**, press **ENTER** to install.
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `--yes`, `-y` | Skip menu, install to all detected agents |
+| `--force`, `-f` | Overwrite existing installations |
+| `--dir <path>` | Add a custom skills directory |
+| `-h`, `--help` | Show help |
+
+### Environment variables (shell installer)
+
+| Variable | Description |
+|----------|-------------|
+| `CODEX_HOME` | Override Codex home directory |
+| `REPO_OWNER` | GitHub repo owner (default: `teafey`) |
+| `REPO_NAME` | GitHub repo name (default: `swarm.skill`) |
+| `BRANCH` | Git branch (default: `main`) |
+
+### Examples
+
+```sh
+# Non-interactive install to all detected agents
+curl -fsSL .../install.sh | bash -s -- --yes
+
+# Overwrite existing installations
+npx --yes -p github:teafey/swarm.skill swarm-skill-install --force
+
+# Install to a custom directory
+npx --yes -p github:teafey/swarm.skill swarm-skill-install --dir ~/.my-agent/skills
+```
+
+### Detected agents
+
+The installer checks for these directories:
+
+| Agent | Home directory | Skills target |
+|-------|---------------|---------------|
+| Claude Code | `~/.claude` | `~/.claude/skills/swarm` |
+| Codex | `~/.codex` (or `$CODEX_HOME`) | `~/.codex/skills/swarm` |
+
+Additional targets can be added with `--dir`.
 
 ## Usage
 
@@ -83,5 +132,5 @@ Behavior:
 
 1. `git remote add origin git@github.com:teafey/swarm.skill.git`
 2. `git add .`
-3. `git commit -m "chore: bootstrap swarm skill repo"`
+3. `git commit -m "chore: update installers"`
 4. `git push -u origin main`
