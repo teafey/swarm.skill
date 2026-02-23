@@ -1,7 +1,7 @@
 # Swarm Skill
 
-`swarm` — это навык Codex/Claude для командного параллельного выполнения задач.
-Он основан на документации Anthropic Agent Teams: https://code.claude.com/docs/en/agent-teams
+`swarm` — это навык для командного параллельного выполнения задач в AI-агентах для кодинга.
+Основан на документации Anthropic Agent Teams: https://code.claude.com/docs/en/agent-teams
 
 English version: [README.md](README.md)
 
@@ -18,29 +18,78 @@ English version: [README.md](README.md)
 - `README.md` — обзор проекта (English).
 - `README.ru.md` — обзор проекта (Русский).
 - `LICENSE` — лицензия MIT.
-- `install.sh` — shell-установщик одной командой.
+- `install.sh` — shell-установщик с интерактивным выбором агентов.
 - `scripts/install.js` — установщик на Node.js (для `npx`).
 - `package.json` — метаданные npm и точка входа CLI.
 
-## Быстрая установка
+## Установка
 
-Установка через shell:
+### Shell (curl)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/teafey/swarm.skill/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/teafey/swarm.skill/main/install.sh | bash
 ```
 
-Установка через NPX (из GitHub):
+### NPX (из GitHub)
 
 ```sh
 npx --yes -p github:teafey/swarm.skill swarm-skill-install
 ```
 
-По умолчанию файлы навыка устанавливаются в `${CODEX_HOME:-$HOME/.codex}/skills/swarm`.
+Оба установщика автоматически находят директории агентов и показывают интерактивное меню:
 
-## Локальное использование
+```
+  Swarm Skill Installer
 
-Поместите эту папку в директорию со skills и убедитесь, что рантайм агента может загрузить `SKILL.md`.
+  SPACE toggle  ↑↓ move  ENTER confirm  q quit
+
+  ❯ [✔] Claude Code  ~/.claude/skills/swarm
+    [✔] Codex         ~/.codex/skills/swarm
+```
+
+Переключайте цели клавишей **SPACE**, перемещайтесь **стрелками**, нажмите **ENTER** для установки.
+
+### Параметры
+
+| Флаг | Описание |
+|------|----------|
+| `--yes`, `-y` | Пропустить меню, установить во все найденные агенты |
+| `--force`, `-f` | Перезаписать существующие установки |
+| `--dir <path>` | Добавить свою директорию skills |
+| `-h`, `--help` | Показать справку |
+
+### Переменные окружения (shell-установщик)
+
+| Переменная | Описание |
+|------------|----------|
+| `CODEX_HOME` | Переопределить домашнюю директорию Codex |
+| `REPO_OWNER` | Владелец репозитория на GitHub (по умолчанию: `teafey`) |
+| `REPO_NAME` | Название репозитория на GitHub (по умолчанию: `swarm.skill`) |
+| `BRANCH` | Ветка Git (по умолчанию: `main`) |
+
+### Примеры
+
+```sh
+# Неинтерактивная установка во все найденные агенты
+curl -fsSL .../install.sh | bash -s -- --yes
+
+# Перезаписать существующие установки
+npx --yes -p github:teafey/swarm.skill swarm-skill-install --force
+
+# Установить в свою директорию
+npx --yes -p github:teafey/swarm.skill swarm-skill-install --dir ~/.my-agent/skills
+```
+
+### Поддерживаемые агенты
+
+Установщик проверяет наличие следующих директорий:
+
+| Агент | Домашняя директория | Целевая директория |
+|-------|--------------------|--------------------|
+| Claude Code | `~/.claude` | `~/.claude/skills/swarm` |
+| Codex | `~/.codex` (или `$CODEX_HOME`) | `~/.codex/skills/swarm` |
+
+Дополнительные цели можно добавить через `--dir`.
 
 ## Использование
 
@@ -83,5 +132,5 @@ npx --yes -p github:teafey/swarm.skill swarm-skill-install
 
 1. `git remote add origin git@github.com:teafey/swarm.skill.git`
 2. `git add .`
-3. `git commit -m "chore: bootstrap swarm skill repo"`
+3. `git commit -m "chore: update installers"`
 4. `git push -u origin main`
