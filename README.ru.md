@@ -99,12 +99,13 @@ npx --yes -p github:teafey/swarm.skill swarm-skill-install --dir ~/.my-agent/ski
 /swarm <task>
 ```
 
-Запуск с указанием модели:
+Запуск с указанием числа агентов и/или модели:
 
 ```text
+/swarm <task>
 /swarm haiku <task>
-/swarm sonnet <task>
-/swarm opus <task>
+/swarm 2 haiku <task>
+/swarm 3 opus <task>
 ```
 
 Типовые примеры:
@@ -117,8 +118,8 @@ npx --yes -p github:teafey/swarm.skill swarm-skill-install --dir ~/.my-agent/ski
 
 Поведение:
 
-1. Разбирает ваш запрос на задачи.
-2. Делит работу ровно на 4 агентов с изолированной областью работы.
+1. Разбирает ваш запрос на задачи и аргументы запуска (`/swarm [число_агентов] [модель] <задача>`).
+2. Делит работу на указанное число агентов (по умолчанию: 4, допустимо: 2–12) с изолированной областью работы.
 3. Выполняет согласование плана до начала реализации.
 4. Отслеживает прогресс и возвращает итоговое резюме.
 
@@ -134,3 +135,12 @@ npx --yes -p github:teafey/swarm.skill swarm-skill-install --dir ~/.my-agent/ski
 2. `git add .`
 3. `git commit -m "chore: update installers"`
 4. `git push -u origin main`
+
+
+## Идеи для дальнейшей кастомизации
+
+- Приоритет: `/swarm 4 opus --priority high <task>` для агрессивного дедлайна.
+- Режим качества: `--strict-review` (более жёсткая проверка планов перед approve).
+- Лимит итераций: `--max-plan-retries 2` для контроля времени.
+- Шаблоны запусков: `/swarm preset architecture` для типовых задач (архитектура, рефакторинг, тесты).
+- Автоподбор: если задач мало, предлагать меньше агентов автоматически с подтверждением.
