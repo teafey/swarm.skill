@@ -7,9 +7,9 @@ description: Use when the user asks to execute multiple tasks in parallel using 
 
 ## Overview
 
-Spawn a team of 4 teammates to execute tasks in parallel. You are **team-lead only** — you delegate, advise, review plans, and control. You NEVER edit files, implement, or commit.
+Spawn a configurable team of teammates (default: 4) to execute tasks in parallel. You are **team-lead only** — you delegate, advise, review plans, and control. You NEVER edit files, implement, or commit.
 
-**Core principle:** Parse input, create tasks, cluster by file scope, spawn 4 plan-gated teammates, review their plans, monitor progress, shut down team.
+**Core principle:** Parse input, create tasks, cluster by file scope, spawn plan-gated teammates, review their plans, monitor progress, shut down team.
 
 ## When to Use
 
@@ -33,18 +33,26 @@ digraph when_to_use {
 Extract from user message after `/swarm`:
 
 ```
-/swarm [model?] <task description>
+/swarm [agent_count?] [model?] <task description>
 ```
 
-- **First word** check: if `haiku`, `sonnet`, or `opus` → use as teammate model, rest is the task
-- **Otherwise** → default model is `sonnet`, entire message is the task
+- **First word** check:
+  - If integer, use as `agent_count`
+  - Otherwise `agent_count=4`
+- **Next word** check: if `haiku`, `sonnet`, or `opus` → use as teammate model, rest is the task
+- **Otherwise** → default model is `sonnet`, remaining message is the task
+
+Validation:
+- `agent_count` range: **2..12**
+- Invalid values fall back to `agent_count=4` with a short explanation
 
 Examples:
-- `/swarm haiku refactor auth module` → model=haiku, task="refactor auth module"
-- `/swarm create API endpoints` → model=sonnet, task="create API endpoints"
-- `/swarm opus fix all bugs` → model=opus, task="fix all bugs"
+- `/swarm haiku refactor auth module` → agent_count=4, model=haiku, task="refactor auth module"
+- `/swarm 2 haiku сделай эти таски` → agent_count=2, model=haiku, task="сделай эти таски"
+- `/swarm 3 opus составь архитектуру приложения` → agent_count=3, model=opus, task="составь архитектуру приложения"
+- `/swarm create API endpoints` → agent_count=4, model=sonnet, task="create API endpoints"
 
-Store parsed model for teammate spawning.
+Store parsed `agent_count` + model for teammate spawning.
 
 ## Step 2: Detect Input Type
 
@@ -73,11 +81,11 @@ Three branches:
 ## Step 3: Task Distribution
 
 1. Map each task to the files it will touch (use Explore agents if needed)
-2. Cluster tasks by directory/domain into exactly **4 groups**
+2. Cluster tasks by directory/domain into exactly **agent_count groups**
 3. **HARD RULE: No file appears in more than one agent's scope** — if conflict, assign to one agent only
 4. Name agents by domain (e.g., `engine-core`, `viewer-fixes`, `auth-module`, `api-routes`), NEVER `agent-1`
 
-If fewer than 4 natural groups exist, split the largest group. If more than 4, merge the most related groups.
+If fewer than `agent_count` natural groups exist, split the largest group. If more than `agent_count`, merge the most related groups.
 
 ## Step 4: Team Lifecycle
 
@@ -87,7 +95,7 @@ digraph lifecycle {
     "TeamCreate" [shape=box];
     "TaskCreate x N" [shape=box];
     "TaskUpdate — assign owners" [shape=box];
-    "Spawn 4 teammates (mode=plan)" [shape=box];
+    "Spawn teammates (mode=plan)" [shape=box];
     "Plan review loop" [shape=box];
     "Monitor — answer questions, unblock, track TaskList" [shape=box];
     "All tasks complete?" [shape=diamond];
@@ -97,8 +105,8 @@ digraph lifecycle {
 
     "TeamCreate" -> "TaskCreate x N";
     "TaskCreate x N" -> "TaskUpdate — assign owners";
-    "TaskUpdate — assign owners" -> "Spawn 4 teammates (mode=plan)";
-    "Spawn 4 teammates (mode=plan)" -> "Plan review loop";
+    "TaskUpdate — assign owners" -> "Spawn teammates (mode=plan)";
+    "Spawn teammates (mode=plan)" -> "Plan review loop";
     "Plan review loop" -> "Monitor — answer questions, unblock, track TaskList";
     "Monitor — answer questions, unblock, track TaskList" -> "All tasks complete?";
     "All tasks complete?" -> "Monitor — answer questions, unblock, track TaskList" [label="no"];
@@ -120,7 +128,7 @@ Create one task per work item with clear subject, description, and activeForm.
 
 ### Spawn Teammates
 
-For each of the 4 agents, use `Task` tool with:
+For each of the `agent_count` agents, use `Task` tool with:
 - `subagent_type`: `"general-purpose"`
 - `mode`: `"plan"` — forces plan approval before any edits
 - `model`: parsed model from Step 1 (default: `"sonnet"`)
@@ -190,8 +198,8 @@ When all tasks are complete:
 | File conflict detected | Reassign conflicting file to single agent |
 | Agent stuck (no progress) | Message for status; if unresponsive, stop and replace |
 | Agent reports blocker | Unblock with context or reassign task |
-| Fewer than 4 task groups | Split largest group to reach 4 |
-| More than 4 task groups | Merge most related groups to reach 4 |
+| Fewer than required task groups | Split largest group until reaching `agent_count` |
+| More than required task groups | Merge most related groups until reaching `agent_count` |
 
 ## Hard Rules
 
@@ -200,7 +208,7 @@ When all tasks are complete:
 | NEVER edit/write files yourself | You are team-lead ONLY |
 | NEVER assign same file to 2 agents | Causes merge conflicts |
 | NEVER skip plan approval | All teammates run in `mode: "plan"` |
-| ALWAYS spawn exactly 4 teammates | Not 3, not 5 — always 4 |
+| ALWAYS spawn exactly `agent_count` teammates | Respect parsed value (default: 4) |
 | ALWAYS name agents by domain | Never `agent-1`, `agent-2` |
 | ALWAYS clean up team when done | TeamDelete after shutdown |
 
@@ -215,9 +223,11 @@ When all tasks are complete:
 ## Quick Reference
 
 ```
-/swarm haiku <task>     → 4 haiku teammates
-/swarm sonnet <task>    → 4 sonnet teammates (same as /swarm <task>)
-/swarm opus <task>      → 4 opus teammates
+/swarm <task>                 → 4 sonnet teammates (default)
+/swarm haiku <task>           → 4 haiku teammates
+/swarm 2 haiku <task>         → 2 haiku teammates
+/swarm 3 opus <task>          → 3 opus teammates
+/swarm 6 sonnet <task>        → 6 sonnet teammates
 /swarm <path/to/plan>   → read plan file, distribute tasks
 /swarm 1. X 2. Y 3. Z  → parse inline task list
 /swarm <vague request>  → explore first, then propose tasks

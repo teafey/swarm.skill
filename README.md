@@ -99,12 +99,13 @@ Trigger the skill in chat when you want parallel execution with a team:
 /swarm <task>
 ```
 
-Model-specific launch:
+Launch with agent count and/or model:
 
 ```text
+/swarm <task>
 /swarm haiku <task>
-/swarm sonnet <task>
-/swarm opus <task>
+/swarm 2 haiku <task>
+/swarm 3 opus <task>
 ```
 
 Common examples:
@@ -117,8 +118,8 @@ Common examples:
 
 Behavior:
 
-1. Parses your request into tasks.
-2. Splits work into exactly 4 scoped agents.
+1. Parses your request into tasks and launch arguments (`/swarm [agent_count] [model] <task>`).
+2. Splits work into the requested number of scoped agents (default: 4, allowed: 2–12).
 3. Runs plan approval before implementation.
 4. Tracks progress and returns a final summary.
 
@@ -134,3 +135,12 @@ Behavior:
 2. `git add .`
 3. `git commit -m "chore: update installers"`
 4. `git push -u origin main`
+
+
+## Ideas for further customization
+
+- Priority mode: `/swarm 4 opus --priority high <task>` for tighter delivery focus.
+- Quality mode: `--strict-review` for more conservative plan approval.
+- Planning retry limit: `--max-plan-retries 2` to control iteration cost.
+- Launch presets: `/swarm preset architecture` for recurring workflows.
+- Auto-sizing: when task count is small, suggest fewer agents with confirmation.
